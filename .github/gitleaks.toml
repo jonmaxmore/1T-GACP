@@ -1,0 +1,5 @@
+title = "1T-GACP Secrets Detection"
+[[rules]]
+id = "stripe-api-key"
+description = "Stripe API Key"
+regex = '''(sk_(test|live)_[0-9a-zA-Z]{24})'''
