@@ -1,0 +1,61 @@
+name: thai_herbal_gacp_backend
+description: Backend server for Thai Herbal GACP Platform
+version: 1.0.0
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  # Core dependencies
+  shelf: ^1.4.0
+  shelf_router: ^1.1.0
+  shelf_web_socket: ^1.0.0
+  shelf_cors: ^1.0.0
+  shelf_static: ^1.1.0
+  args: ^2.4.0
+  dotenv: ^3.0.0
+  logging: ^1.1.1
+  intl: ^0.18.1
+  crypto: ^3.0.3
+
+  # Database
+  postgres: ^2.6.0
+  drift: ^2.13.0
+  drift_postgres: ^2.8.0
+  sqlite3: ^2.0.0
+
+  # File handling
+  path: ^1.8.3
+  mime: ^1.0.4
+  file: ^6.1.4
+  pdf: ^3.10.4
+  image: ^4.1.4
+  archive: ^3.3.0
+
+  # AI Integration
+  http: ^1.1.0
+  dio: ^5.3.3
+
+  # Security
+  encrypt: ^5.0.1
+  pointycastle: ^3.7.3
+  jwt: ^9.0.1
+
+  # Utilities
+  uuid: ^3.0.7
+  collection: ^1.17.2
+  async: ^2.11.0
+  json_annotation: ^4.8.1
+  time: ^2.0.0
+
+dev_dependencies:
+  test: ^1.24.0
+  shelf_test_handler: ^1.0.0
+  build_runner: ^2.4.5
+  json_serializable: ^6.7.1
+  drift_dev: ^2.12.1
+  lints: ^2.1.1
+  mockito: ^5.4.2
+
+executables:
+  server:
