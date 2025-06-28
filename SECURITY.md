@@ -1,8 +1,11 @@
 # Security Policy
-## Reporting Vulnerabilities
-- Report via SECURITY@yourdomain.com (PGP encrypted)
-- **Critical**: Never commit secrets - Use Google Secret Manager
 
-## Response SLA
-- Critical: 24 hours
-- High: 72 hours
+## Reporting Vulnerabilities
+- Email: security@example.com
+- PGP Key: XXXXX
+- **Critical issues**: Response within 24 hours
+
+## Secret Management
+- ใช้ environment variables เท่านั้น
+- ใช้ .env สำหรับ development (เพิ่มใน .gitignore)
+- ใช้ secret manager (Vault/GC Secret Manager) สำหรับ production
