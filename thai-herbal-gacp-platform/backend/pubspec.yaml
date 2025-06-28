@@ -1,409 +1,61 @@
 name: thai_herbal_gacp_backend
-description: 🌿 Thai Herbal GACP Platform - Dart Backend Server with Advanced Tracking
+description: Backend server for Thai Herbal GACP Platform
+version: 1.0.0
 
-# ===================================================================
-# Application Information
-# ===================================================================
-version: 3.0.0
-publish_to: 'none'
-
-# ===================================================================
-# Environment Configuration
-# ===================================================================
 environment:
   sdk: '>=3.0.0 <4.0.0'
 
-# ===================================================================
-# Dependencies
-# ===================================================================
 dependencies:
-  # ===================================================================
-  # HTTP Server Framework
-  # ===================================================================
-  
-  # Shelf Framework - Lightweight HTTP server
-  shelf: ^1.4.1
-  shelf_router: ^1.1.4
-  shelf_web_socket: ^1.0.4
-  shelf_cors_headers: ^0.1.5
-  shelf_static: ^1.1.2
-  shelf_proxy: ^1.0.4
-  
-  # Angel Framework Alternative (More features)
-  # angel3_framework: ^8.0.0
-  # angel3_auth: ^8.0.0
-  
-  # ===================================================================
-  # Database & ORM
-  # ===================================================================
-  
-  # PostgreSQL Driver
-  postgres: ^2.6.2
-  
-  # Database Migration & Schema
-  stormberry: ^0.18.3
-  
-  # Connection Pooling
-  pool: ^1.5.1
-  
-  # ===================================================================
-  # Event Sourcing & CQRS (Replace Blockchain)
-  # ===================================================================
-  
-  # Event Store Implementation
-  eventuous_dart: ^0.1.0
-  
-  # Command Query Responsibility Segregation
-  # Custom implementation using streams and repositories
-  
-  # ===================================================================
-  # Digital Signatures & Cryptography
-  # ===================================================================
-  
-  # Advanced Cryptography
-  pointycastle: ^3.7.3
-  
-  # Digital Signatures (Replace blockchain immutability)
-  cryptography: ^2.5.0
-  
-  # Hash Functions
-  crypto: ^3.0.3
-  
-  # ===================================================================
-  # Audit Trail & Immutable Logs
-  # ===================================================================
-  
-  # Structured Logging
-  logging: ^1.2.0
-  
-  # JSON Logging
-  json_logger: ^1.0.1
-  
-  # ===================================================================
-  # Cache & Session Management
-  # ===================================================================
-  
-  # Redis Client
-  redis: ^3.1.1
-  
-  # In-Memory Cache
-  shelf_cached: ^1.0.0
-  
-  # ===================================================================
-  # Authentication & Authorization
-  # ===================================================================
-  
-  # JWT Implementation
-  dart_jsonwebtoken: ^2.12.1
-  
-  # OAuth 2.0
-  oauth2: ^2.0.2
-  
-  # Password Hashing
-  bcrypt: ^1.1.3
-  
-  # ===================================================================
-  # API Documentation & Validation
-  # ===================================================================
-  
-  # OpenAPI / Swagger
-  swagger_dart_code_generator: ^2.10.0
-  
-  # Request Validation
-  json_schema: ^5.1.1
-  
-  # ===================================================================
-  # HTTP Client & External APIs
-  # ===================================================================
-  
-  # HTTP Client
-  dio: ^5.3.2
-  http: ^1.1.0
-  
-  # ===================================================================
-  # File Handling & Storage
-  # ===================================================================
-  
-  # File System Operations
-  path: ^1.8.3
-  io: ^1.0.4
-  
-  # Image Processing
-  image: ^4.1.3
-  
-  # File Upload Handling
-  mime: ^1.0.4
-  
-  # Cloud Storage Integration
-  # AWS S3
-  aws_s3_api: ^2.1.0
-  
-  # Google Cloud Storage
-  gcloud: ^0.8.9
-  
-  # ===================================================================
-  # Message Queue & Background Jobs
-  # ===================================================================
-  
-  # Task Queue Implementation
-  # Using PostgreSQL as queue instead of Redis
-  
-  # Background Job Processing
-  # Custom implementation with isolates
-  
-  # ===================================================================
-  # Monitoring & Observability
-  # ===================================================================
-  
-  # Prometheus Metrics
-  prometheus_client: ^0.1.0
-  
-  # Distributed Tracing
-  opentelemetry: ^0.18.0
-  
-  # Health Checks
-  # Custom implementation
-  
-  # ===================================================================
-  # Configuration & Environment
-  # ===================================================================
-  
-  # Environment Variables
-  dotenv: ^4.2.0
-  
-  # Configuration Management
-  yaml: ^3.1.2
-  
-  # ===================================================================
-  # Utilities & Helpers
-  # ===================================================================
-  
-  # Date & Time
+  # Core dependencies
+  shelf: ^1.4.0
+  shelf_router: ^1.1.0
+  shelf_web_socket: ^1.0.0
+  shelf_cors: ^1.0.0
+  shelf_static: ^1.1.0
+  args: ^2.4.0
+  dotenv: ^3.0.0
+  logging: ^1.1.1
   intl: ^0.18.1
-  timezone: ^0.9.2
-  
-  # UUID Generation
-  uuid: ^4.1.0
-  
-  # Collection Utilities
-  collection: ^1.18.0
-  
-  # Functional Programming
-  dartz: ^0.10.1
-  
-  # ===================================================================
-  # AI/ML Integration
-  # ===================================================================
-  
-  # TensorFlow Serving Client
-  # Custom HTTP client for TF Serving
-  
-  # ===================================================================
-  # Government API Integration
-  # ===================================================================
-  
-  # Custom HTTP clients for:
-  # - DTAM (Department of Agricultural Extension)
-  # - FDA (Food and Drug Administration)  
-  # - Digital Government Development Agency
-  
-  # ===================================================================
-  # Advanced Tracking System (Blockchain Alternative)
-  # ===================================================================
-  
-  # Merkle Tree Implementation
-  # Custom implementation for data integrity
-  
-  # Time-stamping Service
-  # Integration with government timestamp service
-  
-  # Digital Certificate Management
-  # X.509 certificate handling
-  x509: ^0.2.4
-  
-  # ===================================================================
-  # Real-time Features
-  # ===================================================================
-  
-  # WebSocket Support
-  web_socket_channel: ^2.4.0
-  
-  # Server-Sent Events
-  sse: ^4.1.0
-  
-  # ===================================================================
-  # Development Dependencies
-  # ===================================================================
-dev_dependencies:
-  # ===================================================================
-  # Testing Framework
-  # ===================================================================
-  
-  test: ^1.24.6
-  mocktail: ^1.0.0
-  faker: ^2.1.0
-  
-  # ===================================================================
-  # Code Generation
-  # ===================================================================
-  
-  build_runner: ^2.4.6
-  json_serializable: ^6.7.1
+  crypto: ^3.0.3
+
+  # Database
+  postgres: ^2.6.0
+  drift: ^2.13.0
+  drift_postgres: ^2.8.0
+  sqlite3: ^2.0.0
+
+  # File handling
+  path: ^1.8.3
+  mime: ^1.0.4
+  file: ^6.1.4
+  pdf: ^3.10.4
+  image: ^4.1.4
+  archive: ^3.3.0
+
+  # AI Integration
+  http: ^1.1.0
+  dio: ^5.3.3
+
+  # Security
+  encrypt: ^5.0.1
+  pointycastle: ^3.7.3
+  jwt: ^9.0.1
+
+  # Utilities
+  uuid: ^3.0.7
+  collection: ^1.17.2
+  async: ^2.11.0
   json_annotation: ^4.8.1
-  
-  # Database Code Generation
-  stormberry_generator: ^0.18.3
-  
-  # ===================================================================
-  # Code Quality
-  # ===================================================================
-  
-  very_good_analysis: ^5.1.0
-  
-  # ===================================================================
-  # Database Migration Tools
-  # ===================================================================
-  
-  # Custom migration runner
-  
-# ===================================================================
-# Executables
-# ===================================================================
+  time: ^2.0.0
+
+dev_dependencies:
+  test: ^1.24.0
+  shelf_test_handler: ^1.0.0
+  build_runner: ^2.4.5
+  json_serializable: ^6.7.1
+  drift_dev: ^2.12.1
+  lints: ^2.1.1
+  mockito: ^5.4.2
+
 executables:
-  server: server
-  migrate: migrate
-  seed: seed
-
-# ===================================================================
-# Advanced Tracking Architecture (Replacing Blockchain)
-# ===================================================================
-
-# ใช้แทน Blockchain:
-# 1. Event Sourcing Pattern
-#    - เก็บทุก event ที่เกิดขึ้นในระบบ
-#    - Immutable event store
-#    - Event replay สำหรับ audit trail
-#
-# 2. Digital Signatures
-#    - ลงนามดิจิทัลทุก transaction
-#    - Verify integrity ด้วย cryptographic hash
-#    - Non-repudiation
-#
-# 3. Merkle Tree Structure
-#    - จัดเก็บ hash tree สำหรับ data integrity
-#    - Efficient verification
-#    - Tamper detection
-#
-# 4. Government Timestamp Service
-#    - เชื่อมต่อกับระบบ timestamp ของรัฐ
-#    - Legal validity
-#    - Trusted third party verification
-#
-# 5. Distributed Event Store
-#    - Multiple database replicas
-#    - Cross-validation
-#    - High availability
-#
-# 6. Immutable Audit Logs
-#    - Write-only log system
-#    - Cryptographic checksums
-#    - Compliance ready
-
-# ===================================================================
-# Benefits over Blockchain:
-# ===================================================================
-
-# ✅ Performance: 
-#    - No mining/consensus overhead
-#    - Real-time transactions
-#    - Scalable to millions of records
-#
-# ✅ Cost-Effective:
-#    - No cryptocurrency costs
-#    - Lower infrastructure requirements
-#    - Standard database hosting
-#
-# ✅ Compliance:
-#    - Easier regulatory compliance
-#    - Government system integration
-#    - GDPR/PDPA compatible
-#
-# ✅ Maintainability:
-#    - Standard database tools
-#    - Easier debugging
-#    - Better developer experience
-#
-# ✅ Integration:
-#    - Direct API connections
-#    - Standard protocols
-#    - Legacy system compatibility
-
-# ===================================================================
-# Security Features:
-# ===================================================================
-
-# 🔒 Data Integrity:
-#    - SHA-256 hashing
-#    - Digital signatures
-#    - Merkle tree verification
-#
-# 🔒 Non-Repudiation:
-#    - PKI infrastructure
-#    - Certificate authorities
-#    - Timestamp authorities
-#
-# 🔒 Access Control:
-#    - Role-based permissions
-#    - Multi-factor authentication
-#    - API rate limiting
-#
-# 🔒 Audit Trail:
-#    - Complete transaction history
-#    - Immutable logs
-#    - Compliance reporting
-
-# ===================================================================
-# Implementation Notes:
-# ===================================================================
-
-# Event Sourcing Implementation:
-# ```dart
-# abstract class Event {
-#   String get eventId;
-#   DateTime get timestamp;
-#   String get aggregateId;
-#   Map<String, dynamic> toJson();
-# }
-# 
-# class HerbCertificationEvent extends Event {
-#   final String farmerId;
-#   final String herbType;
-#   final CertificationData data;
-# }
-# ```
-
-# Digital Signature Implementation:
-# ```dart
-# class DigitalSignature {
-#   static String signData(String data, PrivateKey key) {
-#     // RSA/ECDSA signature implementation
-#   }
-#   
-#   static bool verifySignature(String data, String signature, PublicKey key) {
-#     // Signature verification
-#   }
-# }
-# ```
-
-# Merkle Tree Implementation:
-# ```dart
-# class MerkleTree {
-#   static String buildTree(List<String> transactions) {
-#     // Build merkle tree and return root hash
-#   }
-#   
-#   static bool verifyProof(String transaction, List<String> proof, String root) {
-#     // Verify merkle proof
-#   }
-# }
-# ```
+  server:
