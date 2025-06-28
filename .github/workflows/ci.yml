@@ -1,26 +1,32 @@
-name: 1T-GACP CI
+name: 1T-GACP Production CI
 on: [push, pull_request]
 
 jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
-    container:
-      image: gcc:12.2.0
+  build:
+    runs-on: ubuntu-22.04
+    container: gcc:12.2.0
     steps:
-    - uses: actions/checkout@v4
-    - name: Build
-      run: make all
-    - name: Run Tests
-      run: make test
-    - name: Security Scan
-      uses: shiftleftsecurity/scan-action@master
-      with:
-        output: reports
+      - name: Checkout
+        uses: actions/checkout@v4
 
-  coverage:
-    runs-on: ubuntu-latest
-    needs: build-and-test
+      - name: Build
+        run: make clean all
+
+      - name: Run Unit Tests
+        run: make test-unit
+        env:
+          GACP_API_KEY: "test_key_${{ github.run_id }}" # Test secret
+
+      - name: Fuzz Testing
+        run: make fuzz
+        timeout-minutes: 30
+
+  security:
+    runs-on: ubuntu-22.04
+    needs: build
     steps:
-    - uses: actions/checkout@v4
-    - name: Coverage Report
-      uses: codecov/codecov-action@v3
+      - uses: actions/checkout@v4
+      - name: Secret Scanning
+        uses: gitleaks/gitleaks-action@v2
+        with:
+          config-path: .github/gitleaks.toml
