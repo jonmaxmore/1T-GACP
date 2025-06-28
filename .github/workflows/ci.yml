@@ -1,0 +1,26 @@
+name: 1T-GACP CI
+on: [push, pull_request]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    container:
+      image: gcc:12.2.0
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build
+      run: make all
+    - name: Run Tests
+      run: make test
+    - name: Security Scan
+      uses: shiftleftsecurity/scan-action@master
+      with:
+        output: reports
+
+  coverage:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    steps:
+    - uses: actions/checkout@v4
+    - name: Coverage Report
+      uses: codecov/codecov-action@v3
