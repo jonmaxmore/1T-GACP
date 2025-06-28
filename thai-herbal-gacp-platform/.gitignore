@@ -1,586 +1,280 @@
-# Thai Herbal GACP Platform - Global .gitignore
+# =====================================
+# Thai Herbal GACP Platform .gitignore
+# =====================================
 
-# ==============================================================================
-# Environment & Configuration
-# ==============================================================================
+# General
+*.log
+*.log.*
+*.sqlite
+*.sqlite3
+*.db
+*.bak
+*.backup
+*.swp
+*~
+.DS_Store
+.idea
+.vscode
+.npm
+.eslintcache
 .env
-.env.local
-.env.production
-.env.staging
+.env.*.local
+!.env.example
+
+# Sensitive files
 *.key
 *.pem
-*.cert
-config/secrets/
+*.crt
+*.cer
+*.pfx
+*.p12
+*.jks
+*.keystore
+*.credentials
+*.token
+*.secret
 
-# ==============================================================================
-# Operating System
-# ==============================================================================
+# Build artifacts
+/build/
+/out/
+/dist/
+/target/
+/bin/
+/.dart_tool/
+/.packages
+/.pub-cache/
+/.pub/
+/packages/
+*.exe
+*.dll
+*.so
+*.dylib
+*.o
+*.a
+*.lib
+*.sln
+*.suo
+*.xcodeproj/
+*.xcuserstate
+*.xccheckout
+*.xcsettings
 
-# macOS
-.DS_Store
-.AppleDouble
-.LSOverride
-Icon?
-._*
-.DocumentRevisions-V100
-.fseventsd
-.Spotlight-V100
-.TemporaryItems
-.Trashes
-.VolumeIcon.icns
-.com.apple.timemachine.donotpresent
-
-# Windows
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-$RECYCLE.BIN/
-*.cab
-*.msi
-*.msm
-*.msp
-*.lnk
-
-# Linux
-*~
-.nfs*
-
-# ==============================================================================
-# IDEs & Editors
-# ==============================================================================
-
-# Visual Studio Code
-.vscode/
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-
-# IntelliJ IDEA
-.idea/
-*.iws
-*.iml
-*.ipr
-out/
-
-# Android Studio
-.gradle/
-local.properties
-*.iml
-.idea/workspace.xml
-.idea/tasks.xml
-.idea/gradle.xml
-.idea/assetWizardSettings.xml
-.idea/dictionaries
-.idea/libraries
-.idea/caches
-
-# Xcode
-*.xcodeproj/*
-!*.xcodeproj/project.pbxproj
-!*.xcodeproj/xcshareddata/
-!*.xcworkspace/contents.xcworkspacedata
-**/xcshareddata/WorkspaceSettings.xcsettings
-
-# Sublime Text
-*.tmlanguage.cache
-*.tmPreferences.cache
-*.stTheme.cache
-*.sublime-workspace
-*.sublime-project
-
-# Vim
-*.swp
-*.swo
-*~
-
-# Emacs
-*~
-\#*\#
-/.emacs.desktop
-/.emacs.desktop.lock
-*.elc
-auto-save-list
-tramp
-.\#*
-
-# ==============================================================================
-# Flutter & Dart
-# ==============================================================================
-
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
+# Dart/Flutter
 .dart_tool/
+.packages
+.pub/
+pubspec.lock
 .flutter-plugins
 .flutter-plugins-dependencies
-.packages
-.pub-cache/
-.pub/
-/build/
+.flutter/
+.fvm/
+.ios/
+.android/
+.idea/
+.vs/
+.vscode/
+*.iml
+*.lock
+*.dart.js
+*.js.map
+*.js
+*.dart.js
+*.js.map
+*.info.json
 
-# Symbolication related
-app.*.symbols
-
-# Obfuscation related
-app.*.map.json
-
-# Android related
-**/android/**/gradle-wrapper.jar
-**/android/.gradle
-**/android/captures/
-**/android/gradlew
-**/android/gradlew.bat
-**/android/local.properties
-**/android/**/GeneratedPluginRegistrant.java
-
-# iOS related
-**/ios/**/*.mode1v3
-**/ios/**/*.mode2v3
-**/ios/**/*.moved-aside
-**/ios/**/*.pbxuser
-**/ios/**/*.perspectivev3
-**/ios/**/*sync/
-**/ios/**/.sconsign.dblite
-**/ios/**/.tags*
-**/ios/**/.vagrant/
-**/ios/**/DerivedData/
-**/ios/**/Icon?
-**/ios/**/Pods/
-**/ios/**/.symlinks/
-**/ios/**/profile
-**/ios/**/xcuserdata
-**/ios/.generated/
-**/ios/Flutter/App.framework
-**/ios/Flutter/Flutter.framework
-**/ios/Flutter/Flutter.podspec
-**/ios/Flutter/Generated.xcconfig
-**/ios/Flutter/ephemeral/
-**/ios/Flutter/app.flx
-**/ios/Flutter/app.zip
-**/ios/Flutter/flutter_assets/
-**/ios/Flutter/flutter_export_environment.sh
-**/ios/ServiceDefinitions.json
-**/ios/Runner/GeneratedPluginRegistrant.*
-
-# Web related
-lib/generated_plugin_registrant.dart
-
-# Coverage
-coverage/
-
-# ==============================================================================
-# Backend & API
-# ==============================================================================
-
-# Dart backend
-.dart_tool/
-.packages
-pubspec.lock
-build/
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyc
+*.egg-info/
+*.egg
+*.manifest
+*.spec
+.pytest_cache/
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+*.ipynb_checkpoints
 
 # Node.js
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-lerna-debug.log*
-.pnpm-debug.log*
-
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# Coverage directory used by tools like istanbul
-coverage/
-*.lcov
-
-# nyc test coverage
-.nyc_output
-
-# Grunt intermediate storage
-.grunt
-
-# Bower dependency directory
-bower_components
-
-# node-waf configuration
-.lock-wscript
-
-# Compiled binary addons
-build/Release
-
-# Dependency directories
-jspm_packages/
-
-# TypeScript cache
+.pnp/
+.pnp.js
 *.tsbuildinfo
 
-# Optional npm cache directory
-.npm
-
-# Optional eslint cache
-.eslintcache
-
-# Microbundle cache
-.rpt2_cache/
-.rts2_cache_cjs/
-.rts2_cache_es/
-.rts2_cache_umd/
-
-# Optional REPL history
-.node_repl_history
-
-# Output of 'npm pack'
-*.tgz
-
-# Yarn Integrity file
-.yarn-integrity
-
-# parcel-bundler cache
-.cache
-.parcel-cache
-
-# Next.js build output
-.next
-
-# Nuxt.js build / generate output
-.nuxt
-dist
-
-# Gatsby files
-.cache/
-public
-
-# Serverless directories
-.serverless/
-
-# FuseBox cache
-.fusebox/
-
-# DynamoDB Local files
-.dynamodb/
-
-# TernJS port file
-.tern-port
-
-# Stores VSCode versions used for testing VSCode extensions
-.vscode-test
-
-# ==============================================================================
-# AI & Machine Learning
-# ==============================================================================
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
-cover/
-
-# Translations
-*.mo
-*.pot
-
-# Django
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-
-# Flask
-instance/
-.webassets-cache
-
-# Scrapy
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-.pybuilder/
-target/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IPython
-profile_default/
-ipython_config.py
-
-# pyenv
-.python-version
-
-# pipenv
-Pipfile.lock
-
-# poetry
-poetry.lock
-
-# pdm
-.pdm.toml
-
-# PEP 582
-__pypackages__/
-
-# Celery
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# pytype static type analyzer
-.pytype/
-
-# Cython debug symbols
-cython_debug/
-
-# ML Models & Data
-*.h5
-*.hdf5
-*.pkl
-*.pickle
-*.joblib
-*.model
-*.bin
-*.onnx
-*.pb
-*.pth
-*.pt
-weights/
-models/
-datasets/
-data/raw/
-data/processed/
-checkpoints/
-
-# TensorFlow
-*.tfrecord
-*.tfevents.*
-
-# PyTorch
-lightning_logs/
-
-# Weights & Biases
-wandb/
-
-# MLflow
-mlruns/
-
-# ==============================================================================
-# Blockchain & Hyperledger Fabric
-# ==============================================================================
-
-# Hyperledger Fabric
-crypto-config/
-channel-artifacts/
-organizations/
-system-genesis-block/
-*.block
-*.tx
-ledgers/
-production/
-
-# Go
-# Binaries for programs and plugins
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
-
-# Test binary, built with `go test -c`
-*.test
-
-# Output of the go coverage tool
-*.out
-
-# Dependency directories (remove the comment below to include it)
-vendor/
-
-# Go workspace file
-go.work
-
-# ==============================================================================
-# Database
-# ==============================================================================
-
-# PostgreSQL
-*.sql
-*.dump
-*.backup
-
-# Neo4j
-neo4j/data/
-neo4j/logs/
-neo4j/plugins/
-neo4j/import/
-
-# Redis
-redis.conf
-dump.rdb
-appendonly.aof
-
-# SQLite
-*.sqlite
+# Database files
 *.sqlite3
+*.sqlite
+*.dump
+*.sql
 *.db
-
-# ==============================================================================
-# Docker & Containers
-# ==============================================================================
+*.dump
 
 # Docker
-.dockerignore
-Dockerfile.prod
 docker-compose.override.yml
 docker-compose.prod.yml
+docker-compose.dev.yml
+docker-data/
 
-# ==============================================================================
-# Infrastructure & DevOps
-# ==============================================================================
-
-# Terraform
-*.tfstate
-*.tfstate.*
-.terraform/
-.terraform.lock.hcl
-*.tfvars
-*.tfplan
-
-# Kubernetes
-*.kubeconfig
-
-# Ansible
-*.retry
-
-# Vagrant
-.vagrant/
-
-# Packer
-packer_cache/
-
-# ==============================================================================
-# Monitoring & Logging
-# ==============================================================================
-
-# Logs
-logs/
-*.log
-*.log.*
-*.out
-
-# Prometheus
-prometheus/data/
-
-# Grafana
-grafana/data/
-
-# ELK Stack
-elasticsearch/data/
-logstash/data/
-kibana/data/
-
-# ==============================================================================
-# Build & Distribution
-# ==============================================================================
-
-# Build outputs
-build/
-dist/
-release/
+# AI Models
+*.h5
+*.pth
+*.pt
+*.onnx
+*.tflite
+*.pb
+*.joblib
+*.pkl
 *.zip
 *.tar.gz
-*.rar
+
+# Documentation
+/docs/_build/
+/site/
+
+# Test artifacts
+/coverage/
+/junit/
+/test-results/
+/.nyc_output/
+
+# Frontend
+web/
+android/
+ios/
+/lib/generated_plugin_registrant.dart
+*.dart.js
+*.js.map
+*.js
+*.dart.js
+*.js.map
+*.info.json
+.flutter-plugins
+.flutter-plugins-dependencies
+.flutter/
+.fvm/
+.ios/
+.android/
+.idea/
+.vs/
+.vscode/
+*.iml
+*.lock
+
+# Flutter Web
+.flutter-plugins-dependencies
+.flutter-plugins
+
+# Android
+android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java
+android/app/release/
+android/app/debug/
+android/app/profile/
+android/gradle/
+android/gradlew
+android/gradlew.bat
+android/local.properties
+android/.gradle/
+android/.idea/
+android/app/build/
+android/build/
+
+# iOS
+ios/Flutter/Flutter.podspec
+ios/Flutter/Flutter.framework/
+ios/Flutter/App.framework/
+ios/Flutter/Debug.xcconfig
+ios/Flutter/Release.xcconfig
+ios/Flutter/Profile.xcconfig
+ios/Flutter/Generated.xcconfig
+ios/.symlinks/
+ios/Pods/
+ios/Podfile.lock
+ios/Runner.xcodeproj/project.xcworkspace/
+ios/Runner.xcodeproj/xcuserdata/
+ios/Runner.xcworkspace/
+ios/Runner.xcworkspace/xcuserdata/
+ios/Runner/GeneratedPluginRegistrant.*
+
+# macOS
+macos/Flutter/Flutter.podspec
+macos/Flutter/Flutter.framework/
+macos/Flutter/App.framework/
+macos/Flutter/Debug.xcconfig
+macos/Flutter/Release.xcconfig
+macos/Flutter/Profile.xcconfig
+macos/Flutter/Generated.xcconfig
+macos/.symlinks/
+macos/Pods/
+macos/Podfile.lock
+macos/Runner.xcodeproj/project.xcworkspace/
+macos/Runner.xcodeproj/xcuserdata/
+macos/Runner.xcworkspace/
+macos/Runner.xcworkspace/xcuserdata/
+macos/Runner/GeneratedPluginRegistrant.*
+
+# Windows
+windows/flutter/
+windows/runner/flutter_window.cpp
+windows/runner/flutter_window.h
+windows/runner/utils.cpp
+windows/runner/utils.h
+windows/runner/win32_window.cpp
+windows/runner/win32_window.h
+windows/runner/**/Debug/
+windows/runner/**/Release/
+windows/runner/**/Profile/
+
+# Linux
+linux/flutter/
+linux/runner/**/Debug/
+linux/runner/**/Release/
+linux/runner/**/Profile/
+
+# Generated files
+lib/generated_plugin_registrant.dart
+lib/**/*.g.dart
+lib/**/*.freezed.dart
+lib/**/*.mocks.dart
+lib/**/*.part.dart
+
+# Firebase
+firebase-debug.log
+firebase-debug.*.log
+google-services.json
+GoogleService-Info.plist
+.firebase/
 
 # Temporary files
-tmp/
-temp/
 *.tmp
 *.temp
-
-# ==============================================================================
-# Backup & Archives
-# ==============================================================================
+*.swp
+*.swo
+*~
 
 # Backup files
 *.bak
 *.backup
-*.old
-*.orig
 
-# Archives
+# Log files
+*.log
+logs/
+*.logs
+
+# System files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Package files
 *.7z
 *.dmg
 *.gz
@@ -590,81 +284,17 @@ temp/
 *.tar
 *.zip
 
-# ==============================================================================
-# Documentation
-# ==============================================================================
-
-# Generated documentation
-docs/build/
-docs/_build/
-docs/.doctrees/
-
-# ==============================================================================
-# Testing
-# ==============================================================================
-
-# Test results
-test-results/
-test-reports/
-.nyc_output/
-coverage/
-*.coverage
-junit.xml
-
-# ==============================================================================
-# Security & Secrets
-# ==============================================================================
-
-# API Keys & Secrets
-*.key
-*.secret
-secrets/
-credentials/
-.secrets/
-
-# SSL Certificates
-*.crt
-*.csr
-*.pem
-*.p12
-*.pfx
-
-# ==============================================================================
-# Project Specific
-# ==============================================================================
-
-# AI Training Data
-training_data/
-validation_data/
-test_data/
-annotations/
-augmented_data/
-
-# Generated Reports
-reports/
-analytics/
-audit_logs/
-
-# Cache directories
-.cache/
-cache/
-.tmp/
-
-# User uploads
-uploads/
-user_data/
-images/processed/
-
-# Configuration overrides
-config/local/
-config/development/
-config/staging/
-config/production/
-
-# Database migrations backup
-migrations/backup/
-
-# Third-party libraries
-third_party/
-vendor/
-dependencies/
+# Media files
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.tiff
+*.ico
+*.mp3
+*.wav
+*.mp4
+*.mov
+*.avi
+*.mkv
