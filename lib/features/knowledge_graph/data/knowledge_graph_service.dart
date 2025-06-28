@@ -157,4 +157,358 @@ class KnowledgeGraphService {
       HerbKnowledge(
         id: 'mitragyna_speciosa',
         thaiName: 'กระท่อม',
-        scient
+        scientificName: 'Mitragyna speciosa Korth.',
+        family: 'Rubiaceae',
+        properties: [
+          HerbProperty(name: 'Mitragynine', type: 'alkaloid', concentration: '12-21%'),
+          HerbProperty(name: '7-hydroxymitragynine', type: 'alkaloid', concentration: '0.01-2%'),
+          HerbProperty(name: 'Paynantheine', type: 'alkaloid', concentration: '8-15%'),
+        ],
+        medicalUses: [
+          MedicalUse(condition: 'chronic_pain', effectiveness: 0.73, evidence: 'observational_studies'),
+          MedicalUse(condition: 'opioid_withdrawal', effectiveness: 0.68, evidence: 'case_reports'),
+          MedicalUse(condition: 'fatigue', effectiveness: 0.65, evidence: 'user_reports'),
+        ],
+        gacpRequirements: GACPRequirements(
+          cultivationStandards: ['tropical_rainforest', 'high_humidity', 'rich_soil'],
+          harvestingGuidelines: ['mature_leaves_only', 'sustainable_harvesting', 'quick_drying'],
+          storageConditions: ['airtight_containers', 'cool_dry_place', 'avoid_contamination'],
+          qualityMarkers: ['alkaloid_profile', 'microbial_testing', 'heavy_metal_screening'],
+        ),
+        contraindications: ['pregnancy', 'lactation', 'liver_disease', 'mental_health_disorders'],
+        interactions: ['opioids', 'sedatives', 'alcohol', 'psychiatric_medications'],
+      ),
+    ];
+  }
+
+  Future<void> _buildKnowledgeGraph() async {
+    // Create nodes for each herb and their components
+    for (final herb in _herbKnowledge) {
+      // Main herb node
+      _localGraph[herb.id] = KnowledgeNode(
+        id: herb.id,
+        type: NodeType.herb,
+        properties: {
+          'thai_name': herb.thaiName,
+          'scientific_name': herb.scientificName,
+          'family': herb.family,
+        },
+      );
+
+      // Property nodes
+      for (final property in herb.properties) {
+        final propertyId = '${herb.id}_${property.name.toLowerCase()}';
+        _localGraph[propertyId] = KnowledgeNode(
+          id: propertyId,
+          type: NodeType.property,
+          properties: {
+            'name': property.name,
+            'type': property.type,
+            'concentration': property.concentration,
+          },
+        );
+        
+        // Create CONTAINS relationship
+        _addRelationship(herb.id, propertyId, RelationshipType.contains);
+      }
+
+      // Medical use nodes
+      for (final use in herb.medicalUses) {
+        final useId = '${herb.id}_${use.condition}';
+        _localGraph[useId] = KnowledgeNode(
+          id: useId,
+          type: NodeType.medicalUse,
+          properties: {
+            'condition': use.condition,
+            'effectiveness': use.effectiveness,
+            'evidence': use.evidence,
+          },
+        );
+        
+        // Create TREATS relationship
+        _addRelationship(herb.id, useId, RelationshipType.treats);
+      }
+    }
+  }
+
+  Future<void> _createSemanticRelationships() async {
+    // Create relationships between herbs with similar properties
+    for (int i = 0; i < _herbKnowledge.length; i++) {
+      for (int j = i + 1; j < _herbKnowledge.length; j++) {
+        final herb1 = _herbKnowledge[i];
+        final herb2 = _herbKnowledge[j];
+        
+        // Check for similar medical uses
+        final commonUses = herb1.medicalUses
+            .where((use1) => herb2.medicalUses
+                .any((use2) => use1.condition == use2.condition))
+            .toList();
+        
+        if (commonUses.isNotEmpty) {
+          _addRelationship(herb1.id, herb2.id, RelationshipType.similar);
+        }
+        
+        // Check for same family
+        if (herb1.family == herb2.family) {
+          _addRelationship(herb1.id, herb2.id, RelationshipType.relatedFamily);
+        }
+      }
+    }
+  }
+
+  void _addRelationship(String fromId, String toId, RelationshipType type) {
+    if (!_relationships.containsKey(fromId)) {
+      _relationships[fromId] = [];
+    }
+    _relationships[fromId]!.add(Relationship(
+      from: fromId,
+      to: toId,
+      type: type,
+    ));
+  }
+
+  // Semantic Query Engine
+  Future<List<KnowledgeResult>> queryKnowledge(String query) async {
+    final results = <KnowledgeResult>[];
+    
+    // Simple semantic search (in production, use vector embeddings)
+    final queryLower = query.toLowerCase();
+    
+    for (final node in _localGraph.values) {
+      double relevanceScore = 0.0;
+      
+      // Check node properties for matches
+      for (final property in node.properties.values) {
+        if (property.toString().toLowerCase().contains(queryLower)) {
+          relevanceScore += 0.8;
+        }
+      }
+      
+      // Check relationships
+      final relationships = _relationships[node.id] ?? [];
+      for (final rel in relationships) {
+        final relatedNode = _localGraph[rel.to];
+        if (relatedNode != null) {
+          for (final property in relatedNode.properties.values) {
+            if (property.toString().toLowerCase().contains(queryLower)) {
+              relevanceScore += 0.3;
+            }
+          }
+        }
+      }
+      
+      if (relevanceScore > 0) {
+        results.add(KnowledgeResult(
+          node: node,
+          relevanceScore: relevanceScore,
+          relationships: relationships,
+        ));
+      }
+    }
+    
+    // Sort by relevance
+    results.sort((a, b) => b.relevanceScore.compareTo(a.relevanceScore));
+    return results.take(10).toList();
+  }
+
+  // Find related herbs
+  Future<List<String>> findRelatedHerbs(String herbId) async {
+    final relationships = _relationships[herbId] ?? [];
+    return relationships
+        .where((rel) => rel.type == RelationshipType.similar || 
+                       rel.type == RelationshipType.relatedFamily)
+        .map((rel) => rel.to)
+        .toList();
+  }
+
+  // Get herb recommendations for condition
+  Future<List<HerbRecommendation>> getRecommendationsForCondition(String condition) async {
+    final recommendations = <HerbRecommendation>[];
+    
+    for (final herb in _herbKnowledge) {
+      final relevantUses = herb.medicalUses
+          .where((use) => use.condition.toLowerCase().contains(condition.toLowerCase()))
+          .toList();
+      
+      if (relevantUses.isNotEmpty) {
+        final avgEffectiveness = relevantUses
+            .map((use) => use.effectiveness)
+            .reduce((a, b) => a + b) / relevantUses.length;
+        
+        recommendations.add(HerbRecommendation(
+          herbId: herb.id,
+          herbName: herb.thaiName,
+          effectiveness: avgEffectiveness,
+          evidence: relevantUses.first.evidence,
+          contraindications: herb.contraindications,
+          interactions: herb.interactions,
+        ));
+      }
+    }
+    
+    // Sort by effectiveness
+    recommendations.sort((a, b) => b.effectiveness.compareTo(a.effectiveness));
+    return recommendations;
+  }
+
+  // Knowledge Graph Analytics
+  Future<KnowledgeGraphStats> getGraphStats() async {
+    final herbCount = _localGraph.values.where((n) => n.type == NodeType.herb).length;
+    final propertyCount = _localGraph.values.where((n) => n.type == NodeType.property).length;
+    final medicalUseCount = _localGraph.values.where((n) => n.type == NodeType.medicalUse).length;
+    final relationshipCount = _relationships.values.expand((list) => list).length;
+    
+    return KnowledgeGraphStats(
+      totalNodes: _localGraph.length,
+      herbNodes: herbCount,
+      propertyNodes: propertyCount,
+      medicalUseNodes: medicalUseCount,
+      totalRelationships: relationshipCount,
+      avgConnectionsPerNode: relationshipCount / _localGraph.length,
+    );
+  }
+
+  Future<void> addNewKnowledge(Map<String, dynamic> data) async {
+    // Implementation for continuous learning
+    print('🧠 Adding new knowledge: $data');
+  }
+}
+
+// Data Models
+class HerbKnowledge {
+  final String id;
+  final String thaiName;
+  final String scientificName;
+  final String family;
+  final List<HerbProperty> properties;
+  final List<MedicalUse> medicalUses;
+  final GACPRequirements gacpRequirements;
+  final List<String> contraindications;
+  final List<String> interactions;
+
+  HerbKnowledge({
+    required this.id,
+    required this.thaiName,
+    required this.scientificName,
+    required this.family,
+    required this.properties,
+    required this.medicalUses,
+    required this.gacpRequirements,
+    required this.contraindications,
+    required this.interactions,
+  });
+}
+
+class HerbProperty {
+  final String name;
+  final String type;
+  final String concentration;
+
+  HerbProperty({
+    required this.name,
+    required this.type,
+    required this.concentration,
+  });
+}
+
+class MedicalUse {
+  final String condition;
+  final double effectiveness;
+  final String evidence;
+
+  MedicalUse({
+    required this.condition,
+    required this.effectiveness,
+    required this.evidence,
+  });
+}
+
+class GACPRequirements {
+  final List<String> cultivationStandards;
+  final List<String> harvestingGuidelines;
+  final List<String> storageConditions;
+  final List<String> qualityMarkers;
+
+  GACPRequirements({
+    required this.cultivationStandards,
+    required this.harvestingGuidelines,
+    required this.storageConditions,
+    required this.qualityMarkers,
+  });
+}
+
+class KnowledgeNode {
+  final String id;
+  final NodeType type;
+  final Map<String, dynamic> properties;
+
+  KnowledgeNode({
+    required this.id,
+    required this.type,
+    required this.properties,
+  });
+}
+
+enum NodeType { herb, property, medicalUse, condition, family }
+
+class Relationship {
+  final String from;
+  final String to;
+  final RelationshipType type;
+
+  Relationship({
+    required this.from,
+    required this.to,
+    required this.type,
+  });
+}
+
+enum RelationshipType { contains, treats, similar, relatedFamily, contraindicated, interacts }
+
+class KnowledgeResult {
+  final KnowledgeNode node;
+  final double relevanceScore;
+  final List<Relationship> relationships;
+
+  KnowledgeResult({
+    required this.node,
+    required this.relevanceScore,
+    required this.relationships,
+  });
+}
+
+class HerbRecommendation {
+  final String herbId;
+  final String herbName;
+  final double effectiveness;
+  final String evidence;
+  final List<String> contraindications;
+  final List<String> interactions;
+
+  HerbRecommendation({
+    required this.herbId,
+    required this.herbName,
+    required this.effectiveness,
+    required this.evidence,
+    required this.contraindications,
+    required this.interactions,
+  });
+}
+
+class KnowledgeGraphStats {
+  final int totalNodes;
+  final int herbNodes;
+  final int propertyNodes;
+  final int medicalUseNodes;
+  final int totalRelationships;
+  final double avgConnectionsPerNode;
+
+  KnowledgeGraphStats({
+    required this.totalNodes,
+    required this.herbNodes,
+    required this.propertyNodes,
+    required this.medicalUseNodes,
+    required this.totalRelationships,
+    required this.avgConnectionsPerNode,
+  });
+}
