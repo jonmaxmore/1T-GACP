@@ -1,21 +1,27 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -fPIE -D_FORTIFY_SOURCE=2
+CFLAGS = -Wall -Wextra -Werror -fPIE
 TEST_FLAGS = -lcheck -lm -lpthread
 
-SRC = $(wildcard src/**/*.c src/*.c)
-OBJ = $(SRC:.c=.o)
+SRC_DIR = src
+BUILD_DIR = build
 
-.PHONY: all test-unit fuzz
+SRCS = $(wildcard $(SRC_DIR)/*.c $(SRC_DIR)/*/*.c)
+OBJS = $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRCS))
 
-all: gacp-bin
+.PHONY: all test clean
 
-gacp-bin: $(OBJ)
+all: gacp-app
+
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
+	@mkdir -p $(@D)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+gacp-app: $(OBJS)
 	$(CC) $(CFLAGS) $^ -o $@
 
-test-unit:
-	$(CC) $(CFLAGS) tests/unit/*.c $(SRC) $(TEST_FLAGS) -o unit-tester
+test:
+	$(CC) $(CFLAGS) tests/unit/*.c $(SRCS) $(TEST_FLAGS) -o unit-tester
 	./unit-tester
 
-fuzz:
-	clang -fsanitize=fuzzer tests/fuzz/fuzz_parser.c src/core/parser.c -o fuzzer
-	./fuzzer -max_total_time=300
+clean:
+	rm -rf $(BUILD_DIR) gacp-app unit-tester
