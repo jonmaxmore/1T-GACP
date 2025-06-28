@@ -1,24 +1,20 @@
-char* load_resource(const char* path) {
-    FILE* fp = fopen(path, "r");
-    if (!fp) return NULL;
+#include <string.h>
+#include <stdlib.h>
 
-    // Automatic cleanup with goto
-    char* buffer = NULL;
-    size_t len = 0;
+// เปลี่ยนจาก: strcpy ที่อันตราย
+// char* unsafe_copy(char* dest, const char* src) {
+//   return strcpy(dest, src);
+// }
+
+// เป็น: ฟังก์ชันปลอดภัย
+char* safe_copy(const char* src) {
+    if (!src) return NULL;
     
-    if (fseek(fp, 0, SEEK_END) != 0) goto cleanup;
-    len = ftell(fp);
-    rewind(fp);
-    
-    buffer = malloc(len + 1);
-    if (!buffer) goto cleanup;
-    
-    if (fread(buffer, 1, len, fp) != len) {
-        free(buffer);
-        buffer = NULL;
+    size_t len = strlen(src) + 1;
+    char* dest = malloc(len);
+    if (dest) {
+        strncpy(dest, src, len);
+        dest[len-1] = '\0'; // รับประกัน null-terminated
     }
-
-cleanup:
-    fclose(fp);
-    return buffer;
+    return dest;
 }
