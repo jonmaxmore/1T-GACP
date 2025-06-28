@@ -1,456 +1,98 @@
-# ===================================================================
-# Thai Herbal GACP Platform v3.0 - Docker Compose Configuration
-# ===================================================================
-
 version: '3.8'
 
 services:
-  # ===================================================================
-  # Database Services
-  # ===================================================================
-  
-  # PostgreSQL - Main Database
+  # Database
   postgres:
-    image: postgres:15-alpine
-    container_name: gacp-postgres
-    restart: unless-stopped
+    image: postgres:14-alpine
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-thai_herbal_gacp}
-      POSTGRES_USER: ${POSTGRES_USER:-gacp_user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secure_password}
-      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+      POSTGRES_DB: gacp_prod
+      POSTGRES_USER: gacp
+      POSTGRES_PASSWORD: securepassword
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
       - ./database/postgresql/init:/docker-entrypoint-initdb.d
-      - ./database/postgresql/migrations:/migrations
     ports:
       - "5432:5432"
     networks:
-      - gacp-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-gacp_user} -d ${POSTGRES_DB:-thai_herbal_gacp}"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
+      - gacp-net
 
-  # Neo4j - Knowledge Graph Database
-  neo4j:
-    image: neo4j:5.11-community
-    container_name: gacp-neo4j
-    restart: unless-stopped
-    environment:
-      NEO4J_AUTH: ${NEO4J_USER:-neo4j}/${NEO4J_PASSWORD:-knowledge_graph}
-      NEO4J_dbms_memory_heap_initial__size: 512m
-      NEO4J_dbms_memory_heap_max__size: 1G
-      NEO4J_dbms_memory_pagecache_size: 512m
-      NEO4J_dbms_security_procedures_unrestricted: apoc.*
-      NEO4J_dbms_security_procedures_allowlist: apoc.*
-    volumes:
-      - neo4j_data:/data
-      - neo4j_logs:/logs
-      - neo4j_conf:/conf
-      - neo4j_plugins:/plugins
-      - ./database/neo4j/cypher-scripts:/import
-    ports:
-      - "7474:7474"  # HTTP
-      - "7687:7687"  # Bolt
-    networks:
-      - gacp-network
-    healthcheck:
-      test: ["CMD-SHELL", "cypher-shell -u ${NEO4J_USER:-neo4j} -p ${NEO4J_PASSWORD:-knowledge_graph} 'RETURN 1'"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-
-  # Redis - Cache & Session Store
-  redis:
-    image: redis:7-alpine
-    container_name: gacp-redis
-    restart: unless-stopped
-    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-}
-    volumes:
-      - redis_data:/data
-      - ./database/redis/config/redis.conf:/usr/local/etc/redis/redis.conf
-    ports:
-      - "6379:6379"
-    networks:
-      - gacp-network
-    healthcheck:
-      test: ["CMD-SHELL", "redis-cli ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # ===================================================================
-  # Backend Services
-  # ===================================================================
-
-  # Dart Backend API
+  # Backend Server
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile
-      target: production
-    container_name: gacp-backend
-    restart: unless-stopped
+      dockerfile: Dockerfile.prod
     environment:
-      - APP_ENV=${APP_ENV:-development}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-gacp_user}:${POSTGRES_PASSWORD:-secure_password}@postgres:5432/${POSTGRES_DB:-thai_herbal_gacp}
-      - REDIS_URL=redis://redis:6379
-      - NEO4J_URI=bolt://neo4j:7687
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
-      - API_SECRET_KEY=${API_SECRET_KEY}
-    volumes:
-      - ./backend/storage:/app/storage
-      - ./backend/logs:/app/logs
+      EVENT_STORE_URL: "postgres://gacp:securepassword@postgres:5432/gacp_prod"
+      FDA_API_URL: "https://fda-api.thailand.go.th"
+      FDA_API_KEY: "${FDA_API_KEY}"
+      PORT: 8080
     ports:
       - "8080:8080"
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      neo4j:
-        condition: service_healthy
+      - postgres
     networks:
-      - gacp-network
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
+      - gacp-net
 
-  # ===================================================================
   # AI Services
-  # ===================================================================
-
-  # YOLO Computer Vision API
-  yolo-api:
-    build:
-      context: ./ai-services/yolo-api
-      dockerfile: Dockerfile
-    container_name: gacp-yolo-api
-    restart: unless-stopped
-    environment:
-      - FLASK_ENV=${APP_ENV:-development}
-      - MODEL_PATH=/models
-      - CONFIDENCE_THRESHOLD=${YOLO_CONFIDENCE_THRESHOLD:-0.7}
-      - GPU_ENABLED=${ML_GPU_ENABLED:-false}
-    volumes:
-      - ./ai-services/yolo-api/models:/models
-      - ./ai-services/yolo-api/uploads:/uploads
-      - ./ai-services/yolo-api/logs:/logs
-    ports:
-      - "5000:5000"
-    networks:
-      - gacp-network
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:5000/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-
-  # AI Reasoning Engine
-  reasoning-engine:
+  ai-validator:
     build:
       context: ./ai-services/reasoning-engine
-      dockerfile: Dockerfile
-    container_name: gacp-reasoning-engine
-    restart: unless-stopped
     environment:
-      - FLASK_ENV=${APP_ENV:-development}
-      - NEO4J_URI=bolt://neo4j:7687
-      - NEO4J_USER=${NEO4J_USER:-neo4j}
-      - NEO4J_PASSWORD=${NEO4J_PASSWORD:-knowledge_graph}
-      - LEARNING_ENABLED=${REASONING_ENABLE_LEARNING:-true}
+      MODEL_PATH: "/app/models/gacp_model_v1.h5"
+      KNOWLEDGE_BASE_PATH: "/app/knowledge/gacp_rules.json"
     volumes:
-      - ./ai-services/reasoning-engine/models:/models
-      - ./ai-services/reasoning-engine/logs:/logs
-    ports:
-      - "5001:5001"
-    depends_on:
-      neo4j:
-        condition: service_healthy
+      - ./ai-services/models:/app/models
     networks:
-      - gacp-network
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:5001/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      - gacp-net
 
-  # ===================================================================
-  # Blockchain Services
-  # ===================================================================
-
-  # Hyperledger Fabric Peer
-  fabric-peer:
-    image: hyperledger/fabric-peer:2.4
-    container_name: gacp-fabric-peer
-    restart: unless-stopped
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
     environment:
-      - CORE_PEER_ID=peer0.gacp.com
-      - CORE_PEER_ADDRESS=peer0.gacp.com:7051
-      - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
-      - CORE_PEER_CHAINCODEADDRESS=peer0.gacp.com:7052
-      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.gacp.com:7051
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.gacp.com:7051
-      - CORE_PEER_LOCALMSPID=GACPOrgMSP
-      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
-      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=gacp-network
-      - FABRIC_LOGGING_SPEC=INFO
-      - CORE_PEER_TLS_ENABLED=false
-      - CORE_PEER_PROFILE_ENABLED=true
-      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
-    volumes:
-      - /var/run/:/host/var/run/
-      - ./blockchain/crypto-config/peerOrganizations/gacp.com/peers/peer0.gacp.com/msp:/etc/hyperledger/fabric/msp
-      - ./blockchain/crypto-config/peerOrganizations/gacp.com/peers/peer0.gacp.com/tls:/etc/hyperledger/fabric/tls
-      - peer0_data:/var/hyperledger/production
+      API_URL: "http://backend:8080"
+      AI_VALIDATOR_URL: "http://ai-validator:5000"
     ports:
-      - "7051:7051"
-    networks:
-      - gacp-network
-
-  # ===================================================================
-  # Web Services
-  # ===================================================================
-
-  # Nginx Reverse Proxy
-  nginx:
-    image: nginx:alpine
-    container_name: gacp-nginx
-    restart: unless-stopped
-    volumes:
-      - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./infrastructure/nginx/conf.d:/etc/nginx/conf.d
-      - ./infrastructure/nginx/ssl:/etc/nginx/ssl
-      - ./frontend/build/web:/usr/share/nginx/html
-    ports:
-      - "80:80"
-      - "443:443"
+      - "80:5000"
     depends_on:
       - backend
-      - yolo-api
-      - reasoning-engine
     networks:
-      - gacp-network
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      - gacp-net
 
-  # ===================================================================
-  # Monitoring Services
-  # ===================================================================
+  # Admin Panel
+  admin:
+    build:
+      context: ./admin-panel
+    ports:
+      - "8081:80"
+    environment:
+      API_URL: "http://backend:8080"
+    networks:
+      - gacp-net
 
-  # Prometheus - Metrics Collection
+  # Monitoring
   prometheus:
     image: prom/prometheus:latest
-    container_name: gacp-prometheus
-    restart: unless-stopped
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--storage.tsdb.retention.time=200h'
-      - '--web.enable-lifecycle'
     volumes:
-      - ./infrastructure/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
+      - ./infrastructure/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
     networks:
-      - gacp-network
+      - gacp-net
 
-  # Grafana - Visualization
   grafana:
     image: grafana/grafana:latest
-    container_name: gacp-grafana
-    restart: unless-stopped
-    environment:
-      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin123}
-      - GF_USERS_ALLOW_SIGN_UP=false
     volumes:
-      - grafana_data:/var/lib/grafana
-      - ./infrastructure/monitoring/grafana/provisioning:/etc/grafana/provisioning
-      - ./infrastructure/monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+      - ./infrastructure/monitoring/grafana:/var/lib/grafana
     ports:
       - "3000:3000"
-    depends_on:
-      - prometheus
     networks:
-      - gacp-network
+      - gacp-net
 
-  # Elasticsearch - Log Storage
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.0
-    container_name: gacp-elasticsearch
-    restart: unless-stopped
-    environment:
-      - discovery.type=single-node
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - xpack.security.enabled=false
-      - xpack.security.enrollment.enabled=false
-    volumes:
-      - elasticsearch_data:/usr/share/elasticsearch/data
-    ports:
-      - "9200:9200"
-    networks:
-      - gacp-network
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # Logstash - Log Processing
-  logstash:
-    image: docker.elastic.co/logstash/logstash:8.8.0
-    container_name: gacp-logstash
-    restart: unless-stopped
-    volumes:
-      - ./infrastructure/monitoring/elk/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
-      - ./infrastructure/monitoring/elk/logstash/pipeline:/usr/share/logstash/pipeline
-    ports:
-      - "5044:5044"
-      - "5000:5000/tcp"
-      - "5000:5000/udp"
-      - "9600:9600"
-    environment:
-      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
-    networks:
-      - gacp-network
-
-  # Kibana - Log Visualization
-  kibana:
-    image: docker.elastic.co/kibana/kibana:8.8.0
-    container_name: gacp-kibana
-    restart: unless-stopped
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - xpack.security.enabled=false
-    volumes:
-      - ./infrastructure/monitoring/elk/kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml
-    ports:
-      - "5601:5601"
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
-    networks:
-      - gacp-network
-
-  # ===================================================================
-  # Development Services (only in development)
-  # ===================================================================
-
-  # Adminer - Database Administration
-  adminer:
-    image: adminer:latest
-    container_name: gacp-adminer
-    restart: unless-stopped
-    environment:
-      - ADMINER_DEFAULT_SERVER=postgres
-    ports:
-      - "8081:8080"
-    depends_on:
-      - postgres
-    networks:
-      - gacp-network
-    profiles:
-      - dev
-
-  # MailHog - Email Testing
-  mailhog:
-    image: mailhog/mailhog:latest
-    container_name: gacp-mailhog
-    restart: unless-stopped
-    ports:
-      - "1025:1025"  # SMTP
-      - "8025:8025"  # Web UI
-    networks:
-      - gacp-network
-    profiles:
-      - dev
-
-  # Jaeger - Distributed Tracing
-  jaeger:
-    image: jaegertracing/all-in-one:latest
-    container_name: gacp-jaeger
-    restart: unless-stopped
-    environment:
-      - COLLECTOR_OTLP_ENABLED=true
-    ports:
-      - "16686:16686"  # Web UI
-      - "14268:14268"  # HTTP collector
-      - "14250:14250"  # gRPC collector
-    networks:
-      - gacp-network
-    profiles:
-      - dev
-
-# ===================================================================
-# Networks
-# ===================================================================
-networks:
-  gacp-network:
-    driver: bridge
-    name: gacp-network
-
-# ===================================================================
-# Volumes
-# ===================================================================
 volumes:
-  # Database volumes
-  postgres_data:
-    driver: local
-    name: gacp_postgres_data
-  
-  neo4j_data:
-    driver: local
-    name: gacp_neo4j_data
-  
-  neo4j_logs:
-    driver: local
-    name: gacp_neo4j_logs
-  
-  neo4j_conf:
-    driver: local
-    name: gacp_neo4j_conf
-  
-  neo4j_plugins:
-    driver: local
-    name: gacp_neo4j_plugins
-  
-  redis_data:
-    driver: local
-    name: gacp_redis_data
+  pgdata:
 
-  # Blockchain volumes
-  peer0_data:
-    driver: local
-    name: gacp_peer0_data
-
-  # Monitoring volumes
-  prometheus_data:
-    driver: local
-    name: gacp_prometheus_data
-  
-  grafana_data:
-    driver: local
-    name: gacp_grafana_data
-  
-  elasticsearch_data:
-    driver: local
-    name: gacp_elasticsearch_data
+networks:
+  gacp-net:
+    driver: bridge
